@@ -2,9 +2,15 @@
 //
 // globals.php - db connection and other general information
 //
-    $hostName = "";
-    $database = "";
-    $userName = "";
-    $password = "";
 
+// db connectivity
+
+$hostname = "";
+$database = "";
+$username = "";
+$password = "";
+
+// general
+
+$debug    = 1;
 ?>

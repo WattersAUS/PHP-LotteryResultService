@@ -8,6 +8,7 @@
 // ========== ======= ================================================
 // 2016-12-21 v0.01   First cut of code
 // 2016-12-24 v0.02   Added jsonFilename($workspace, $filename)
+// 2016-12-31 v0.03   Added getGeneratedDate
 //
 
     function debugMessage($debugMsg) {
@@ -15,9 +16,12 @@
         printf("[ ".$now." ] DEBUG: ".$debugMsg."\n");
     }
 
+    function getGeneratedDate() {
+        return date("Y-m-d");
+    }
+
     function jsonFilename($workspace, $filename) {
-        $now = date("Y-m-d");
-        return $workspace.$now."_".$filename;
+        return $workspace.getGeneratedDate()."_".$filename;
     }
 
 ?>

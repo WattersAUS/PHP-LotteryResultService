@@ -9,6 +9,9 @@
 // 2016-12-21 v0.01   First cut of code
 // 2016-12-22 v0.02   Start JSON decode of results from DB (valid o/p)
 // 2016-12-24 v0.03   Completed 1st cut JSON generation
+// 2016-12-31 v0.04   Added JSON output to second file
+// 2016-12-31 v1.00   Released version
+// 2016-12-31 v1.01   Added generated 'date' to JSON
 //
 
     require("globals.php");
@@ -16,7 +19,7 @@
     require("sql.php");
 
     function buildNumbersArray($lotteryRow, $historyRow) {
-        debugMessage("Ready to process numbers usage for (".$lotteryRow["description"]."), draw (".$historyRow["draw"]."), date (".$historyRow["draw_date"].")...");
+        debugMessage("Process numbers usage for (".$lotteryRow["description"]."), draw (".$historyRow["draw"]."), date (".$historyRow["draw_date"].")...");
         if (!$numbersUsage = mysql_query(getNumbersSQL($lotteryRow["ident"], $historyRow["draw"]))) {
             printf("ERROR (".mysql_errno()."): ".mysql_error());
             exit();
@@ -33,7 +36,7 @@
     }
 
     function buildSpecialsArray($lotteryRow, $historyRow) {
-        debugMessage("Ready to process specials usage for (".$lotteryRow["description"]."), draw (".$historyRow["draw"]."), date (".$historyRow["draw_date"].")...");
+        debugMessage("Process specials usage for (".$lotteryRow["description"]."), draw (".$historyRow["draw"]."), date (".$historyRow["draw_date"].")...");
         if (!$specialsUsage = mysql_query(getSpecialsSQL($lotteryRow["ident"], $historyRow["draw"]))) {
             printf("ERROR (".mysql_errno()."): ".mysql_error());
             exit();
@@ -50,7 +53,7 @@
     }
 
     function buildDrawsArray($row) {
-        debugMessage("Ready to process draw history for (".$row["description"].")...");
+        debugMessage("Process draw history for (".$row["description"].")...");
         if (!$lotteryHistory = mysql_query(getDrawHistorySQL($row["ident"]))) {
             printf("ERROR (".mysql_errno()."): ".mysql_error());
             exit();
@@ -70,7 +73,7 @@
     }
 
     function buildJSONContents($row) {
-        debugMessage("Processing summary information for (".$row["description"].")...");
+        debugMessage("Process summary info for (".$row["description"].")...");
         $drawInfo["ident"]           = $row["ident"];
         $drawInfo["description"]     = $row["description"];
         $drawInfo["numbers"]         = $row["numbers"];
@@ -87,12 +90,12 @@
         return $drawInfo;
     }
 
-    debugMessage("Commnencing script (".basename(__FILE__).")...");
+    debugMessage("Starting (".basename(__FILE__).")...");
     if (!($server = mysql_connect($hostname, $username, $password))) {
         printf("ERROR (".mysql_errno()."): ".mysql_error());
         exit();
     }
-    debugMessage("Connected to server (".$hostname.")...");
+    debugMessage("Server (".$hostname.")...");
 
     //
     // we've connected to the server, now to the right database
@@ -101,10 +104,10 @@
         printf("ERROR (".mysql_errno()."): ".mysql_error());
         exit();
     }
-    debugMessage("Selected database (".$database.")...");
+    debugMessage("Database (".$database.")...");
 
     //
-    // ready to connect to the datasbe and finally start work
+    // connect to the database and get to work!
     //
     if (!$lotteryDraws = mysql_query(getLotteryDrawSQL(), $server)) {
         printf("ERROR (".mysql_errno()."): ".mysql_error());
@@ -112,24 +115,30 @@
     }
 
     //
-    // get the rows and process
+    // iterate through 'draws'
     //
-    debugMessage("Ready to process draws...");
+    debugMessage("Commencing to process draws...");
     while ($lotteryRow = mysql_fetch_array($lotteryDraws)) {
         $json[] = buildJSONContents($lotteryRow, $server);
-        debugMessage("Processed draw (".$lotteryRow["description"].")...");
+        debugMessage("Draw (".$lotteryRow["description"].") processed...");
     }
     mysql_close($server);
 
     //
     // format as JSON and save out to a file
     //
-
+    $outputArray["date"]    = getGeneratedDate();
     $outputArray["lottery"] = $json;
     $output                 = json_encode($outputArray);
-    debugMessage("Completed processing results writing JSON to file (".jsonFilename($wrksp, $filename).")...");
+    debugMessage("Writing JSON to file (".jsonFilename($wrksp, $filename).")...");
     if ($file = fopen(jsonFilename($wrksp, $filename), "w")) {
         fputs($file, $output);
+        fclose($file);
+        if (copy(jsonFilename($wrksp, $filename), $cdest.$filename)) {
+            debugMessage("Copied JSON file to (".$cdest.$filename.")...");
+        } else {
+            printf("ERROR (9999): Failed to copy JSON file from source (".jsonFilename($wrksp, $filename).") to (".$cdest.$filename.")");
+        }
     }
 
     exit();

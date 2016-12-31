@@ -5,14 +5,17 @@
 // Purpose: build static JSON file for Lottery results
 //
 // Date       Version Note
-// ========== ======= ================================================
+// ========== ======= ====================================================
 // 2016-12-21 v0.01   First cut of code
 // 2016-12-22 v0.02   Start JSON decode of results from DB (valid o/p)
 // 2016-12-24 v0.03   Completed 1st cut JSON generation
 // 2016-12-31 v0.04   Added JSON output to second file
 // 2016-12-31 v1.00   Released version
 // 2016-12-31 v1.01   Added generated 'date' to JSON
+// 2016-12-31 v1.02   Added script version and removed some summary info
 //
+
+    $version = "v1.02";
 
     require("globals.php");
     require("common.php");
@@ -81,16 +84,11 @@
         $drawInfo["specials"]        = $row["specials"];
         $drawInfo["upper_special"]   = $row["upper_special"];
         $drawInfo["last_modified"]   = $row["last_modified"];
-        $drawInfo["count_of_draws"]  = $row["count_of_draws"];
-        $drawInfo["first_draw"]      = $row["first_draw"];
-        $drawInfo["first_draw_date"] = $row["first_draw_date"];
-        $drawInfo["last_draw"]       = $row["last_draw"];
-        $drawInfo["last_draw_date"]  = $row["last_draw_date"];
         $drawInfo["draws"]           = buildDrawsArray($row);
         return $drawInfo;
     }
 
-    debugMessage("Starting (".basename(__FILE__).")...");
+    debugMessage("Starting ".basename(__FILE__)." ".$version."...");
     if (!($server = mysql_connect($hostname, $username, $password))) {
         printf("ERROR (".mysql_errno()."): ".mysql_error());
         exit();
@@ -127,9 +125,10 @@
     //
     // format as JSON and save out to a file
     //
-    $outputArray["date"]    = getGeneratedDate();
-    $outputArray["lottery"] = $json;
-    $output                 = json_encode($outputArray);
+    $outputArray["version"]   = $version;
+    $outputArray["generated"] = getGeneratedDate();
+    $outputArray["lottery"]   = $json;
+    $output                   = json_encode($outputArray);
     debugMessage("Writing JSON to file (".jsonFilename($wrksp, $filename).")...");
     if ($file = fopen(jsonFilename($wrksp, $filename), "w")) {
         fputs($file, $output);

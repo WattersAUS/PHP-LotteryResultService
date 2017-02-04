@@ -13,14 +13,12 @@
 // 2016-12-31 v1.00   Released version
 // 2016-12-31 v1.01   Added generated 'date' to JSON
 // 2016-12-31 v1.02   Added script version and removed some summary info
+// 2017-02-03 v1.03   Edit tags in JSON to reduce payload size
 //
-
-    $version = "v1.02";
-
+    $version = "v1.03";
     require("globals.php");
     require("common.php");
     require("sql.php");
-
     function buildNumbersArray($lotteryRow, $historyRow) {
         debugMessage("Process numbers usage for (".$lotteryRow["description"]."), draw (".$historyRow["draw"]."), date (".$historyRow["draw_date"].")...");
         if (!$numbersUsage = mysql_query(getNumbersSQL($lotteryRow["ident"], $historyRow["draw"]))) {
@@ -32,12 +30,11 @@
         //
         $numberArray = "";
         while ($numberRow = mysql_fetch_array($numbersUsage)) {
-            $numberInfo["value"] = $numberRow["number"];
-            $numberArray[]       = $numberInfo;
+            $numberInfo["v"] = $numberRow["number"];
+            $numberArray[]   = $numberInfo;
         }
         return $numberArray;
     }
-
     function buildSpecialsArray($lotteryRow, $historyRow) {
         debugMessage("Process specials usage for (".$lotteryRow["description"]."), draw (".$historyRow["draw"]."), date (".$historyRow["draw_date"].")...");
         if (!$specialsUsage = mysql_query(getSpecialsSQL($lotteryRow["ident"], $historyRow["draw"]))) {
@@ -49,12 +46,11 @@
         //
         $specialArray = "";
         while ($specialRow = mysql_fetch_array($specialsUsage)) {
-            $specialInfo["value"] = $specialRow["number"];
-            $specialArray[]       = $specialInfo;
+            $specialInfo["v"] = $specialRow["number"];
+            $specialArray[]   = $specialInfo;
         }
         return $specialArray;
     }
-
     function buildDrawsArray($row) {
         debugMessage("Process draw history for (".$row["description"].")...");
         if (!$lotteryHistory = mysql_query(getDrawHistorySQL($row["ident"]))) {
@@ -66,35 +62,32 @@
         //
         $historyArray = "";
         while ($historyRow = mysql_fetch_array($lotteryHistory)) {
-            $historyInfo["draw"]      = $historyRow["draw"];
-            $historyInfo["draw_date"] = $historyRow["draw_date"];
-            $historyInfo["numbers"]   = buildNumbersArray($row, $historyRow);
-            $historyInfo["specials"]  = buildSpecialsArray($row, $historyRow);
-            $historyArray[]           = $historyInfo;
+            $historyInfo["draw"] = $historyRow["draw"];
+            $historyInfo["date"] = $historyRow["draw_date"];
+            $historyInfo["nos"]  = buildNumbersArray($row, $historyRow);
+            $historyInfo["spc"]  = buildSpecialsArray($row, $historyRow);
+            $historyArray[]      = $historyInfo;
         }
         return $historyArray;
     }
-
     function buildJSONContents($row) {
         debugMessage("Process summary info for (".$row["description"].")...");
-        $drawInfo["ident"]           = $row["ident"];
-        $drawInfo["description"]     = $row["description"];
-        $drawInfo["numbers"]         = $row["numbers"];
-        $drawInfo["upper_number"]    = $row["upper_number"];
-        $drawInfo["specials"]        = $row["specials"];
-        $drawInfo["upper_special"]   = $row["upper_special"];
-        $drawInfo["last_modified"]   = $row["last_modified"];
-        $drawInfo["draws"]           = buildDrawsArray($row);
+        $drawInfo["id"]        = $row["ident"];
+        $drawInfo["desc"]      = $row["description"];
+        $drawInfo["nos"]       = $row["numbers"];
+        $drawInfo["upper_nos"] = $row["upper_number"];
+        $drawInfo["spc"]       = $row["specials"];
+        $drawInfo["upper_spc"] = $row["upper_special"];
+        $drawInfo["modified"]  = $row["last_modified"];
+        $drawInfo["draws"]     = buildDrawsArray($row);
         return $drawInfo;
     }
-
     debugMessage("Starting ".basename(__FILE__)." ".$version."...");
     if (!($server = mysql_connect($hostname, $username, $password))) {
         printf("ERROR (".mysql_errno()."): ".mysql_error());
         exit();
     }
     debugMessage("Server (".$hostname.")...");
-
     //
     // we've connected to the server, now to the right database
     //
@@ -103,7 +96,6 @@
         exit();
     }
     debugMessage("Database (".$database.")...");
-
     //
     // connect to the database and get to work!
     //
@@ -111,7 +103,6 @@
         printf("ERROR (".mysql_errno()."): ".mysql_error());
         exit();
     }
-
     //
     // iterate through 'draws'
     //
@@ -121,7 +112,6 @@
         debugMessage("Draw (".$lotteryRow["description"].") processed...");
     }
     mysql_close($server);
-
     //
     // format as JSON and save out to a file
     //
@@ -139,6 +129,5 @@
             printf("ERROR (9999): Failed to copy JSON file from source (".jsonFilename($wrksp, $filename).") to (".$cdest.$filename.")");
         }
     }
-
     exit();
 ?>

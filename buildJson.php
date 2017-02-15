@@ -18,6 +18,7 @@
 //                    Also use integer array for numbers/specials not a hash
 //
     $version = "v1.04";
+
     require("globals.php");
     require("common.php");
     require("sql.php");
@@ -37,6 +38,7 @@
         }
         return $numberArray;
     }
+
     function buildSpecialsArray($lotteryRow, $historyRow) {
         debugMessage("Process specials usage for (".$lotteryRow["description"]."), draw (".$historyRow["draw"]."), date (".$historyRow["draw_date"].")...");
         if (!$specialsUsage = mysql_query(getSpecialsSQL($lotteryRow["ident"], $historyRow["draw"]))) {
@@ -52,6 +54,7 @@
         }
         return $specialArray;
     }
+
     function buildDrawsArray($row) {
         debugMessage("Process draw history for (".$row["description"].")...");
         if (!$lotteryHistory = mysql_query(getDrawHistorySQL($row["ident"]))) {
@@ -83,6 +86,7 @@
         $drawInfo["draws"]     = buildDrawsArray($row);
         return $drawInfo;
     }
+
     debugMessage("Starting ".basename(__FILE__)." ".$version."...");
     if (!($server = mysql_connect($hostname, $username, $password))) {
         printf("ERROR (".mysql_errno()."): ".mysql_error());

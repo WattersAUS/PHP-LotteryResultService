@@ -14,11 +14,14 @@
 // 2016-12-31 v1.01   Added generated 'date' to JSON
 // 2016-12-31 v1.02   Added script version and removed some summary info
 // 2017-02-03 v1.03   Edit tags in JSON to reduce payload size
+// 2017-02-15 v1.04   Use JSON_NUMERIC_CHECK to force integer non quoting
+//                    Also use integer array for numbers/specials not a hash
 //
-    $version = "v1.03";
+    $version = "v1.04";
     require("globals.php");
     require("common.php");
     require("sql.php");
+
     function buildNumbersArray($lotteryRow, $historyRow) {
         debugMessage("Process numbers usage for (".$lotteryRow["description"]."), draw (".$historyRow["draw"]."), date (".$historyRow["draw_date"].")...");
         if (!$numbersUsage = mysql_query(getNumbersSQL($lotteryRow["ident"], $historyRow["draw"]))) {
@@ -28,10 +31,9 @@
         //
         // get the draw history rows and process
         //
-        $numberArray = "";
+        $numberArray = array();
         while ($numberRow = mysql_fetch_array($numbersUsage)) {
-            $numberInfo["v"] = $numberRow["number"];
-            $numberArray[]   = $numberInfo;
+            array_push($numberArray, $numberRow["number"]);
         }
         return $numberArray;
     }
@@ -44,10 +46,9 @@
         //
         // get the draw history rows and process
         //
-        $specialArray = "";
+        $specialArray = array();
         while ($specialRow = mysql_fetch_array($specialsUsage)) {
-            $specialInfo["v"] = $specialRow["number"];
-            $specialArray[]   = $specialInfo;
+            array_push($specialArray, $specialRow["number"]);
         }
         return $specialArray;
     }
@@ -118,7 +119,7 @@
     $outputArray["version"]   = $version;
     $outputArray["generated"] = getGeneratedDate();
     $outputArray["lottery"]   = $json;
-    $output                   = json_encode($outputArray);
+    $output                   = json_encode($outputArray, JSON_NUMERIC_CHECK);
     debugMessage("Writing JSON to file (".jsonFilename($wrksp, $filename).")...");
     if ($file = fopen(jsonFilename($wrksp, $filename), "w")) {
         fputs($file, $output);

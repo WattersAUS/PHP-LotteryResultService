@@ -16,64 +16,56 @@
 // 2017-02-03 v1.03   Edit tags in JSON to reduce payload size
 // 2017-02-15 v1.04   Use JSON_NUMERIC_CHECK to force integer non quoting
 //                    Also use integer array for numbers/specials not a hash
+// 2017-02-21 v1.05   Rewrite mySQL code to utilise mysqli as mysql deprecated
 //
-    $version = "v1.04";
+    $version = "v1.05";
 
     require("globals.php");
     require("common.php");
     require("sql.php");
 
-    function buildNumbersArray($lotteryRow, $historyRow) {
-        debugMessage("Process numbers usage for (".$lotteryRow["description"]."), draw (".$historyRow["draw"]."), date (".$historyRow["draw_date"].")...");
-        if (!$numbersUsage = mysql_query(getNumbersSQL($lotteryRow["ident"], $historyRow["draw"]))) {
-            printf("ERROR (".mysql_errno()."): ".mysql_error());
-            exit();
-        }
-        //
-        // get the draw history rows and process
-        //
-        $numberArray = array();
-        while ($numberRow = mysql_fetch_array($numbersUsage)) {
-            array_push($numberArray, $numberRow["number"]);
-        }
-        return $numberArray;
+    function setSpecial($isSpecial) {
+        return $isSpecial == TRUE ? 'specials' : 'numbers';
     }
 
-    function buildSpecialsArray($lotteryRow, $historyRow) {
-        debugMessage("Process specials usage for (".$lotteryRow["description"]."), draw (".$historyRow["draw"]."), date (".$historyRow["draw_date"].")...");
-        if (!$specialsUsage = mysql_query(getSpecialsSQL($lotteryRow["ident"], $historyRow["draw"]))) {
-            printf("ERROR (".mysql_errno()."): ".mysql_error());
+    function buildDigitArray($lotteryRow, $historyRow, $isSpecial) {
+        debugMessage("Process ".setSpecial($isSpecial)." usage for (".$lotteryRow["description"]."), draw (".$historyRow["draw"]."), date (".$historyRow["draw_date"].")...");
+        if (!$usage = $server->query(getDigitSQL($lotteryRow["ident"], $historyRow["draw"], $isSpecial))) {
+            printf("ERROR (".$server->connect_errno."): ".$server->connect_error);
             exit();
         }
         //
         // get the draw history rows and process
         //
-        $specialArray = array();
-        while ($specialRow = mysql_fetch_array($specialsUsage)) {
-            array_push($specialArray, $specialRow["number"]);
+        $array = array();
+        while ($row = $usage->fetch_array()) {
+            array_push($array, $row["number"]);
         }
-        return $specialArray;
+        $usage->free();
+        return $array;
     }
 
     function buildDrawsArray($row) {
         debugMessage("Process draw history for (".$row["description"].")...");
-        if (!$lotteryHistory = mysql_query(getDrawHistorySQL($row["ident"]))) {
-            printf("ERROR (".mysql_errno()."): ".mysql_error());
+        if (!$lotteryHistory = $server->query(getDrawHistorySQL($row["ident"]))) {
+            printf("ERROR (".$server->connect_errno."): ".$server->connect_error);
             exit();
         }
         //
         // get the draw history rows and process
         //
         $historyArray = "";
-        while ($historyRow = mysql_fetch_array($lotteryHistory)) {
+        while ($historyRow = $lotteryHistory->fetch_array()) {
             $historyInfo["draw"] = $historyRow["draw"];
             $historyInfo["date"] = $historyRow["draw_date"];
-            $historyInfo["nos"]  = buildNumbersArray($row, $historyRow);
-            $historyInfo["spc"]  = buildSpecialsArray($row, $historyRow);
+            $historyInfo["nos"]  = buildDigitArray($row, $historyRow, 0);
+            $historyInfo["spc"]  = buildDigitArray($row, $historyRow, 1);
             $historyArray[]      = $historyInfo;
         }
+        $lotteryHistory->free();
         return $historyArray;
     }
+
     function buildJSONContents($row) {
         debugMessage("Process summary info for (".$row["description"].")...");
         $drawInfo["id"]        = $row["ident"];
@@ -88,35 +80,29 @@
     }
 
     debugMessage("Starting ".basename(__FILE__)." ".$version."...");
-    if (!($server = mysql_connect($hostname, $username, $password))) {
-        printf("ERROR (".mysql_errno()."): ".mysql_error());
-        exit();
+
+    $server = new mysqli($hostname, $username, $password, $database);
+    if ($server->connect_errno) {
+        printf("ERROR (".$server->connect_errno."): ".$server->connect_error);
     }
-    debugMessage("Server (".$hostname.")...");
-    //
-    // we've connected to the server, now to the right database
-    //
-    if (!mysql_select_db($database, $server)) {
-        printf("ERROR (".mysql_errno()."): ".mysql_error());
-        exit();
-    }
-    debugMessage("Database (".$database.")...");
+    debugMessage("Connected to host (".$server->host_info.")...");
+
     //
     // connect to the database and get to work!
     //
-    if (!$lotteryDraws = mysql_query(getLotteryDrawSQL(), $server)) {
-        printf("ERROR (".mysql_errno()."): ".mysql_error());
+    if (!$lotteryDraws = $server->query(getLotteryDrawSQL())) {
+        printf("ERROR (".$server->connect_errno."): ".$server->connect_error);
         exit();
     }
     //
     // iterate through 'draws'
     //
-    debugMessage("Commencing to process draws...");
-    while ($lotteryRow = mysql_fetch_array($lotteryDraws)) {
+    debugMessage("Commencing to process games...");
+    while ($lotteryRow = $lotteryDraws->fetch_array(MYSQLI_ASSOC)) {
         $json[] = buildJSONContents($lotteryRow, $server);
         debugMessage("Draw (".$lotteryRow["description"].") processed...");
     }
-    mysql_close($server);
+    $server->close();
     //
     // format as JSON and save out to a file
     //

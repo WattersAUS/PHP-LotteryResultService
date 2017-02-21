@@ -9,6 +9,7 @@
 // 2016-12-21 v0.01   First cut of code
 // 2016-12-24 v0.02   Added statments for history, numbers,specials
 // 2017-02-21 v0.03   New routine getDigitSQL, use parameter for no/spc
+// 2017-02-21 v0.04   Bug fixes - set correct parameters in getDigitSQL
 //
 
 function getLotteryDrawSQL() {
@@ -28,8 +29,7 @@ function getDrawHistorySQL($ident) {
     return "SELECT draw, draw_date, last_modified FROM draw_history WHERE ident = ".$ident." order by draw DESC LIMIT 50";
 }
 
-function getDigitSQL($special) {
-    return "SELECT number FROM number_usage WHERE ident = ".$ident." AND draw = ".$draw." AND is_special IS ".($isSpecial == TRUE ? 'TRUE' : 'FALSE'));
+function getDigitSQL($ident, $draw, $isSpecial) {
+    return "SELECT number FROM number_usage WHERE ident = ".$ident." AND draw = ".$draw." AND is_special IS ".($isSpecial == TRUE ? 'TRUE' : 'FALSE');
 }
-
 ?>

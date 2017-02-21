@@ -19,18 +19,21 @@
 // 2017-02-21 v1.05   Rewrite mySQL code to utilise mysqli as mysql deprecated
 // 2017-02-21 v1.06   Incorrect parameter used in calls to buildDigitArray
 // 2017-02-21 v2.01   Encapsulate JSON build in new function buildJSON()
+// 2017-02-21 v2.02   Add getVersion() and bug fixes
 //
-    $version = "v2.01";
 
-    require("globals.php");
     require("common.php");
     require("sql.php");
+
+    function getVersion() {
+        return "v2.02";
+    }
 
     function setSpecial($isSpecial) {
         return $isSpecial == TRUE ? 'specials' : 'numbers';
     }
 
-    function buildDigitArray($lotteryRow, $historyRow, $isSpecial) {
+    function buildDigitArray($server, $lotteryRow, $historyRow, $isSpecial) {
         debugMessage("Process ".setSpecial($isSpecial)." usage for (".$lotteryRow["description"]."), draw (".$historyRow["draw"]."), date (".$historyRow["draw_date"].")...");
         if (!$usage = $server->query(getDigitSQL($lotteryRow["ident"], $historyRow["draw"], $isSpecial))) {
             printf("ERROR (".$server->connect_errno."): ".$server->connect_error);
@@ -40,14 +43,14 @@
         // get the draw history rows and process
         //
         $array = array();
-        while ($row = $usage->fetch_array()) {
+        while ($row = $usage->fetch_array(MYSQLI_ASSOC)) {
             array_push($array, $row["number"]);
         }
         $usage->free();
         return $array;
     }
 
-    function buildDrawsArray($row) {
+    function buildDrawsArray($server, $row) {
         debugMessage("Process draw history for (".$row["description"].")...");
         if (!$lotteryHistory = $server->query(getDrawHistorySQL($row["ident"]))) {
             printf("ERROR (".$server->connect_errno."): ".$server->connect_error);
@@ -57,18 +60,18 @@
         // get the draw history rows and process
         //
         $historyArray = "";
-        while ($historyRow = $lotteryHistory->fetch_array()) {
+        while ($historyRow = $lotteryHistory->fetch_array(MYSQLI_ASSOC)) {
             $historyInfo["draw"] = $historyRow["draw"];
             $historyInfo["date"] = $historyRow["draw_date"];
-            $historyInfo["nos"]  = buildDigitArray($row, $historyRow, FALSE);
-            $historyInfo["spc"]  = buildDigitArray($row, $historyRow, TRUE);
+            $historyInfo["nos"]  = buildDigitArray($server, $row, $historyRow, FALSE);
+            $historyInfo["spc"]  = buildDigitArray($server, $row, $historyRow, TRUE);
             $historyArray[]      = $historyInfo;
         }
         $lotteryHistory->free();
         return $historyArray;
     }
 
-    function buildJSONContents($row) {
+    function buildJSONContents($server, $row) {
         debugMessage("Process summary info for (".$row["description"].")...");
         $drawInfo["id"]        = $row["ident"];
         $drawInfo["desc"]      = $row["description"];
@@ -77,13 +80,13 @@
         $drawInfo["spc"]       = $row["specials"];
         $drawInfo["upper_spc"] = $row["upper_special"];
         $drawInfo["modified"]  = $row["last_modified"];
-        $drawInfo["draws"]     = buildDrawsArray($row);
+        $drawInfo["draws"]     = buildDrawsArray($server, $row);
         return $drawInfo;
     }
 
     function buildJSON() {
-        debugMessage("Commencing ".basename(__FILE__)." ".$version."...");
-        $server = new mysqli($hostname, $username, $password, $database);
+        debugMessage("Commencing ".basename(__FILE__)." ".getVersion()."...");
+        $server = new mysqli('hostname', 'username', 'password', 'database');
         if ($server->connect_errno) {
             printf("ERROR (".$server->connect_errno."): ".$server->connect_error);
         }
@@ -100,14 +103,14 @@
         //
         debugMessage("Commencing to process games...");
         while ($lotteryRow = $lotteryDraws->fetch_array(MYSQLI_ASSOC)) {
-            $json[] = buildJSONContents($lotteryRow, $server);
+            $json[] = buildJSONContents($server, $lotteryRow, $server);
             debugMessage("Draw (".$lotteryRow["description"].") processed...");
         }
         $server->close();
         //
         // format as JSON and save out to a file
         //
-        $outputArray["version"]   = $version;
+        $outputArray["version"]   = getVersion();
         $outputArray["generated"] = getGeneratedDate();
         $outputArray["lottery"]   = $json;
         return json_encode($outputArray, JSON_NUMERIC_CHECK);

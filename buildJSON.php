@@ -1,8 +1,8 @@
 <?php
 //
-// Program: buildJson.php (2016-12-22) G.J. Watson
+// Module: buildJSON.php (2016-12-22) G.J. Watson
 //
-// Purpose: build static JSON file for Lottery results
+// Purpose: Return JSON string containing Lottery results
 //
 // Date       Version Note
 // ========== ======= ====================================================
@@ -18,8 +18,9 @@
 //                    Also use integer array for numbers/specials not a hash
 // 2017-02-21 v1.05   Rewrite mySQL code to utilise mysqli as mysql deprecated
 // 2017-02-21 v1.06   Incorrect parameter used in calls to buildDigitArray
+// 2017-02-21 v2.01   Encapsulate JSON build in new function buildJSON()
 //
-    $version = "v1.06";
+    $version = "v2.01";
 
     require("globals.php");
     require("common.php");
@@ -80,46 +81,35 @@
         return $drawInfo;
     }
 
-    debugMessage("Starting ".basename(__FILE__)." ".$version."...");
-
-    $server = new mysqli($hostname, $username, $password, $database);
-    if ($server->connect_errno) {
-        printf("ERROR (".$server->connect_errno."): ".$server->connect_error);
-    }
-    debugMessage("Connected to host (".$server->host_info.")...");
-
-    //
-    // connect to the database and get to work!
-    //
-    if (!$lotteryDraws = $server->query(getLotteryDrawSQL())) {
-        printf("ERROR (".$server->connect_errno."): ".$server->connect_error);
-        exit();
-    }
-    //
-    // iterate through 'draws'
-    //
-    debugMessage("Commencing to process games...");
-    while ($lotteryRow = $lotteryDraws->fetch_array(MYSQLI_ASSOC)) {
-        $json[] = buildJSONContents($lotteryRow, $server);
-        debugMessage("Draw (".$lotteryRow["description"].") processed...");
-    }
-    $server->close();
-    //
-    // format as JSON and save out to a file
-    //
-    $outputArray["version"]   = $version;
-    $outputArray["generated"] = getGeneratedDate();
-    $outputArray["lottery"]   = $json;
-    $output                   = json_encode($outputArray, JSON_NUMERIC_CHECK);
-    debugMessage("Writing JSON to file (".jsonFilename($wrksp, $filename).")...");
-    if ($file = fopen(jsonFilename($wrksp, $filename), "w")) {
-        fputs($file, $output);
-        fclose($file);
-        if (copy(jsonFilename($wrksp, $filename), $cdest.$filename)) {
-            debugMessage("Copied JSON file to (".$cdest.$filename.")...");
-        } else {
-            printf("ERROR (9999): Failed to copy JSON file from source (".jsonFilename($wrksp, $filename).") to (".$cdest.$filename.")");
+    function buildJSON() {
+        debugMessage("Commencing ".basename(__FILE__)." ".$version."...");
+        $server = new mysqli($hostname, $username, $password, $database);
+        if ($server->connect_errno) {
+            printf("ERROR (".$server->connect_errno."): ".$server->connect_error);
         }
+        debugMessage("Connected to host (".$server->host_info.")...");
+        //
+        // connect to the database and get to work!
+        //
+        if (!$lotteryDraws = $server->query(getLotteryDrawSQL())) {
+            printf("ERROR (".$server->connect_errno."): ".$server->connect_error);
+            exit();
+        }
+        //
+        // iterate through 'draws'
+        //
+        debugMessage("Commencing to process games...");
+        while ($lotteryRow = $lotteryDraws->fetch_array(MYSQLI_ASSOC)) {
+            $json[] = buildJSONContents($lotteryRow, $server);
+            debugMessage("Draw (".$lotteryRow["description"].") processed...");
+        }
+        $server->close();
+        //
+        // format as JSON and save out to a file
+        //
+        $outputArray["version"]   = $version;
+        $outputArray["generated"] = getGeneratedDate();
+        $outputArray["lottery"]   = $json;
+        return json_encode($outputArray, JSON_NUMERIC_CHECK);
     }
-    exit();
 ?>

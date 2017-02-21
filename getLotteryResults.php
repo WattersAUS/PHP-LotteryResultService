@@ -9,8 +9,8 @@
 // 2017-02-21 v1.01   First cut of code
 //
 
+    set_include_path("/var/sites/s/shiny-ideas.tech/lib");
     require("buildJSON.php");
-    $version = "v1.01";
 
 //
 // only respond to a POST (containing a valid key)
@@ -24,10 +24,10 @@
             if (! isset($_GET["key"])) {
               $json = array("status" => 9997, "msg" => "ERROR: ACCESSTOKENNOTSUPPLIED2");
             } else {
-                if ($_GET["key"] = "GJWKEY001") {
+                if ($_GET["key"] <> "GJWKEY001") {
                     $json = array("status" => 9996, "msg" => "ERROR: INCORRECTTOKENSUPPLIED");
                 } else {
-                    $json = buildJSON();
+                    $json = buildJSON(0);
                 }
             }
         }

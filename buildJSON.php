@@ -84,7 +84,7 @@
         return $drawInfo;
     }
 
-    function buildJSON() {
+    function buildJSON($debug) {
         debugMessage("Commencing ".basename(__FILE__)." ".getVersion()."...");
         $server = new mysqli('hostname', 'username', 'password', 'database');
         if ($server->connect_errno) {

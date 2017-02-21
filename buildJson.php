@@ -17,8 +17,9 @@
 // 2017-02-15 v1.04   Use JSON_NUMERIC_CHECK to force integer non quoting
 //                    Also use integer array for numbers/specials not a hash
 // 2017-02-21 v1.05   Rewrite mySQL code to utilise mysqli as mysql deprecated
+// 2017-02-21 v1.06   Incorrect parameter used in calls to buildDigitArray
 //
-    $version = "v1.05";
+    $version = "v1.06";
 
     require("globals.php");
     require("common.php");
@@ -58,8 +59,8 @@
         while ($historyRow = $lotteryHistory->fetch_array()) {
             $historyInfo["draw"] = $historyRow["draw"];
             $historyInfo["date"] = $historyRow["draw_date"];
-            $historyInfo["nos"]  = buildDigitArray($row, $historyRow, 0);
-            $historyInfo["spc"]  = buildDigitArray($row, $historyRow, 1);
+            $historyInfo["nos"]  = buildDigitArray($row, $historyRow, FALSE);
+            $historyInfo["spc"]  = buildDigitArray($row, $historyRow, TRUE);
             $historyArray[]      = $historyInfo;
         }
         $lotteryHistory->free();

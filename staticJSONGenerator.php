@@ -18,7 +18,8 @@
     $cdest    = "/var/sites/s/shiny-ideas.tech/public_html/lottery/";
     $filename = "lotteryresults.json";
 
-    $output = buildJSON(1);
+    $debug  = TRUE;
+    $output = buildJSON();
     debugMessage("Writing JSON to file (".jsonFilename($wrksp, $filename).")...");
     if ($file = fopen(jsonFilename($wrksp, $filename), "w")) {
         fputs($file, $output);

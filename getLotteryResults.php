@@ -7,6 +7,7 @@
 // Date       Version Note
 // ========== ======= ====================================================
 // 2017-02-21 v1.01   First cut of code
+// 2017-02-22 v1.02   Ensure we don't get debug messages
 //
 
     set_include_path("/var/sites/s/shiny-ideas.tech/lib");
@@ -27,7 +28,8 @@
                 if ($_GET["key"] <> "GJWKEY001") {
                     $json = array("status" => 9996, "msg" => "ERROR: INCORRECTTOKENSUPPLIED");
                 } else {
-                    $json = buildJSON(0);
+                    $debug = FALSE;
+                    $json  = buildJSON();
                 }
             }
         }
@@ -36,6 +38,7 @@
 //
 // output back (we should always send something back to the caller, even if it is an err msg)
 //
+
     header('Content-type: application/json');
     echo json_encode($json);
 ?>

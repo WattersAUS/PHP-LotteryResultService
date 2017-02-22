@@ -20,21 +20,21 @@
 // 2017-02-21 v1.06   Incorrect parameter used in calls to buildDigitArray
 // 2017-02-21 v2.01   Encapsulate JSON build in new function buildJSON()
 // 2017-02-21 v2.02   Add getVersion() and bug fixes
+// 2017-02-23 v2.03   Reintroduce globals usage for debug/db etc
 //
 
+    require("globals.php");
     require("common.php");
     require("sql.php");
 
-    function getVersion() {
-        return "v2.02";
-    }
+    $version = "v2.03";
 
     function setSpecial($isSpecial) {
         return $isSpecial == TRUE ? 'specials' : 'numbers';
     }
 
     function buildDigitArray($server, $lotteryRow, $historyRow, $isSpecial) {
-        debugMessage("Process ".setSpecial($isSpecial)." usage for (".$lotteryRow["description"]."), draw (".$historyRow["draw"]."), date (".$historyRow["draw_date"].")...");
+        debugMessage("Process ".setSpecial($isSpecial)." usage for (".$lotteryRow["description"]."), draw (".$historyRow["draw"]."), date (".$historyRow["draw_date"].")...") if ($GLOBALS['debug']);
         if (!$usage = $server->query(getDigitSQL($lotteryRow["ident"], $historyRow["draw"], $isSpecial))) {
             printf("ERROR (".$server->connect_errno."): ".$server->connect_error);
             exit();
@@ -51,7 +51,7 @@
     }
 
     function buildDrawsArray($server, $row) {
-        debugMessage("Process draw history for (".$row["description"].")...");
+        debugMessage("Process draw history for (".$row["description"].")...") if ($GLOBALS['debug']);
         if (!$lotteryHistory = $server->query(getDrawHistorySQL($row["ident"]))) {
             printf("ERROR (".$server->connect_errno."): ".$server->connect_error);
             exit();
@@ -72,7 +72,7 @@
     }
 
     function buildJSONContents($server, $row) {
-        debugMessage("Process summary info for (".$row["description"].")...");
+        debugMessage("Process summary info for (".$row["description"].")...") if ($GLOBALS['debug']);
         $drawInfo["id"]        = $row["ident"];
         $drawInfo["desc"]      = $row["description"];
         $drawInfo["nos"]       = $row["numbers"];
@@ -84,13 +84,13 @@
         return $drawInfo;
     }
 
-    function buildJSON($debug) {
-        debugMessage("Commencing ".basename(__FILE__)." ".getVersion()."...");
-        $server = new mysqli('hostname', 'username', 'password', 'database');
+    function buildJSON() {
+        debugMessage("Commencing ".basename(__FILE__)." ".$GLOBALS['version']."...") if ($GLOBALS['debug']);
+        $server = new mysqli($GLOBALS['hostname'], $GLOBALS['username'], $GLOBALS['password'], $GLOBALS['database']);
         if ($server->connect_errno) {
             printf("ERROR (".$server->connect_errno."): ".$server->connect_error);
         }
-        debugMessage("Connected to host (".$server->host_info.")...");
+        debugMessage("Connected to host (".$server->host_info.")...") if ($GLOBALS['debug']);
         //
         // connect to the database and get to work!
         //
@@ -101,16 +101,16 @@
         //
         // iterate through 'draws'
         //
-        debugMessage("Commencing to process games...");
+        debugMessage("Commencing to process games...") if ($GLOBALS['debug']);
         while ($lotteryRow = $lotteryDraws->fetch_array(MYSQLI_ASSOC)) {
             $json[] = buildJSONContents($server, $lotteryRow, $server);
-            debugMessage("Draw (".$lotteryRow["description"].") processed...");
+            debugMessage("Draw (".$lotteryRow["description"].") processed...") if ($GLOBALS['debug']);
         }
         $server->close();
         //
         // format as JSON and save out to a file
         //
-        $outputArray["version"]   = getVersion();
+        $outputArray["version"]   = $GLOBALS['version'];
         $outputArray["generated"] = getGeneratedDate();
         $outputArray["lottery"]   = $json;
         return json_encode($outputArray, JSON_NUMERIC_CHECK);

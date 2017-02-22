@@ -16,6 +16,7 @@
 //
 // only respond to a POST (containing a valid key)
 //
+
     if($_SERVER['REQUEST_METHOD'] <> "GET") {
         $json = array("status" => 9999, "msg" => "ERROR: REQMETHODNOTGET");
     } else {
@@ -39,6 +40,6 @@
 // output back (we should always send something back to the caller, even if it is an err msg)
 //
 
-    header('Content-type: application/json');
-    echo json_encode($json);
+    header('Content-type: application/json;charset=utf-8');
+    echo $json;
 ?>

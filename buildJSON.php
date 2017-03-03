@@ -22,13 +22,14 @@
 // 2017-02-21 v2.02   Add getVersion() and bug fixes
 // 2017-02-22 v2.03   Reintroduce globals usage for debug/db etc
 // 2017-02-22 v2.04   Introduced new getGeneratedDateTime() to provide gen date
+// 2017-03-03 v2.05   Added is_bonus (as bonus) to JSON o denote bonus numbers used
 //
 
     require("globals.php");
     require("common.php");
     require("sql.php");
 
-    $version = "v2.04";
+    $version = "v2.05";
 
     function setSpecial($isSpecial) {
         return $isSpecial == TRUE ? 'specials' : 'numbers';
@@ -81,6 +82,7 @@
         $drawInfo["spc"]       = $row["specials"];
         $drawInfo["upper_spc"] = $row["upper_special"];
         $drawInfo["modified"]  = $row["last_modified"];
+        $drawInfo["bonus"]     = $row["is_bonus"];
         $drawInfo["draws"]     = buildDrawsArray($server, $row);
         return $drawInfo;
     }

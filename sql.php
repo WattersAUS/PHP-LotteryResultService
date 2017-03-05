@@ -10,10 +10,11 @@
 // 2016-12-24 v0.02   Added statments for history, numbers,specials
 // 2017-02-21 v0.03   New routine getDigitSQL, use parameter for no/spc
 // 2017-02-21 v0.04   Bug fixes - set correct parameters in getDigitSQL
+// 2017-03-05 v0.05   Add is_bonus to lottery SQL
 //
 
 function getLotteryDrawSQL() {
-    $draws  = "SELECT ld.ident,ld.description,ld.numbers,ld.upper_number,ld.specials,ld.upper_special,ld.last_modified,";
+    $draws  = "SELECT ld.ident,ld.description,ld.numbers,ld.upper_number,ld.specials,ld.upper_special,ld.is_bonus,ld.last_modified,";
     $draws .= " COUNT(*) AS count_of_draws,";
     $draws .= " MIN(dh.draw) AS first_draw,";
     $draws .= " MIN(dh.last_modified) AS first_draw_date,";

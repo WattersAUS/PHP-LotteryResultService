@@ -10,12 +10,12 @@
 // 2017-02-21 v1.02   Include set_include_path directive
 //
 
-    set_include_path("/var/sites/s/shiny-ideas.tech/lib");
+    set_include_path("<LIB GOES HERE>");
     require("buildJSON.php");
 
     $version  = "v1.02";
-    $wrksp    = "/var/sites/s/shiny-ideas.tech/WorkSpace/";
-    $cdest    = "/var/sites/s/shiny-ideas.tech/public_html/lottery/";
+    $wrksp    = "<WRKSPACE DIR GOES HERE>";
+    $cdest    = "<DEST DIR GOES HERE>";
     $filename = "lotteryresults.json";
 
     $debug  = TRUE;

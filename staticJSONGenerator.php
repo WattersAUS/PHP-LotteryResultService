@@ -19,7 +19,7 @@
     $filename = "lotteryresults.json";
 
     $debug  = TRUE;
-    $output = buildJSON();
+    $output = buildJSON("localhost", "NONE");
     debugMessage("Writing JSON to file (".jsonFilename($wrksp, $filename).")...");
     if ($file = fopen(jsonFilename($wrksp, $filename), "w")) {
         fputs($file, $output);

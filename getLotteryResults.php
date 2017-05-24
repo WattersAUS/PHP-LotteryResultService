@@ -8,6 +8,7 @@
 // ========== ======= ====================================================
 // 2017-02-21 v1.01   First cut of code
 // 2017-02-22 v1.02   Ensure we don't get debug messages
+// 2017-05-23 v1.03   Pass remote_addr/host info into build script
 //
 
     set_include_path("/var/sites/s/shiny-ideas.tech/lib");
@@ -30,7 +31,7 @@
                     $json = array("status" => 9996, "msg" => "ERROR: INCORRECTTOKENSUPPLIED");
                 } else {
                     $debug = FALSE;
-                    $json  = buildJSON();
+                    $json  = buildJSON($_SERVER['REMOTE_ADDR']);
                 }
             }
         }

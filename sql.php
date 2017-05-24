@@ -11,6 +11,7 @@
 // 2017-02-21 v0.03   New routine getDigitSQL, use parameter for no/spc
 // 2017-02-21 v0.04   Bug fixes - set correct parameters in getDigitSQL
 // 2017-03-05 v0.05   Add is_bonus to lottery SQL
+// 2017-05-23 v0.06   Add insert SQL for remote logging table
 //
 
 function getLotteryDrawSQL() {
@@ -32,5 +33,9 @@ function getDrawHistorySQL($ident) {
 
 function getDigitSQL($ident, $draw, $isSpecial) {
     return "SELECT number FROM number_usage WHERE ident = ".$ident." AND draw = ".$draw." AND is_special IS ".($isSpecial == TRUE ? 'TRUE' : 'FALSE');
+}
+
+function insertRemoteRequest($remote) {
+    return "INSERT INTO request_history (remote) VALUES ('".$remote."')";
 }
 ?>

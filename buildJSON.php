@@ -26,13 +26,14 @@
 // 2017-05-23 v2.06   Added to JSON status/msg to match calling wrapper on an error
 //                    Also include try / catch handling
 // 2017-05-23 v2.07   Save requestor information, in case we need to block
+// 2017-05-26 v2.08   Used renamed sqllottery.php in place of sql.php
 //
 
     require("globals.php");
     require("common.php");
-    require("sql.php");
+    require("sqllottery.php");
 
-    $version = "v2.06";
+    $version = "v2.08";
 
     function setSpecial($isSpecial) {
         return $isSpecial == TRUE ? 'specials' : 'numbers';

@@ -12,6 +12,7 @@
 // 2017-02-21 v0.04   Bug fixes - set correct parameters in getDigitSQL
 // 2017-03-05 v0.05   Add is_bonus to lottery SQL
 // 2017-05-23 v0.06   Add insert SQL for remote logging table
+// 2017-05-26 v0.07   Renamed to sqllottery.php to prevent clash
 //
 
 function getLotteryDrawSQL() {

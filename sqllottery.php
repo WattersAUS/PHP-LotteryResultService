@@ -1,6 +1,6 @@
 <?php
 //
-// Module: sql.php (2016-12-22) G.J. Watson
+// Module: sqllottery.php (2016-12-22) G.J. Watson
 //
 // Purpose: common functions
 //

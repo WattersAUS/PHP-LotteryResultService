@@ -9,6 +9,7 @@
 // 2017-02-21 v1.01   First cut of code
 // 2017-02-22 v1.02   Ensure we don't get debug messages
 // 2017-05-23 v1.03   Pass remote_addr/host info into build script
+// 2017-07-11 v1.04   Enable number of draws to be returned to be set in URL
 //
 
     set_include_path("/var/sites/s/shiny-ideas.tech/lib");
@@ -31,7 +32,11 @@
                     $json = array("status" => 9996, "msg" => "ERROR: INCORRECTTOKENSUPPLIED");
                 } else {
                     $debug = FALSE;
-                    $json  = buildJSON($_SERVER['REMOTE_ADDR']);
+                    $drawLimit = 50;
+                    if (isset($_GET["draws"])) {
+                        $drawLimit = $_GET["draws"];
+                    }
+                    $json  = buildJSON($_SERVER['REMOTE_ADDR'], $drawLimit);
                 }
             }
         }

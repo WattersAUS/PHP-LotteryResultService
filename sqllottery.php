@@ -13,6 +13,7 @@
 // 2017-03-05 v0.05   Add is_bonus to lottery SQL
 // 2017-05-23 v0.06   Add insert SQL for remote logging table
 // 2017-05-26 v0.07   Renamed to sqllottery.php to prevent clash
+// 2017-07-11 v0.08   Added $limit as option in getDrawHistorySQL
 //
 
 function getLotteryDrawSQL() {
@@ -28,8 +29,12 @@ function getLotteryDrawSQL() {
     return $draws;
 }
 
-function getDrawHistorySQL($ident) {
-    return "SELECT draw, draw_date, last_modified FROM draw_history WHERE ident = ".$ident." order by draw DESC LIMIT 50";
+function getDrawHistorySQL($ident, $drawLimit) {
+    $sql = "SELECT draw, draw_date, last_modified FROM draw_history WHERE ident = ".$ident." order by draw DESC";
+    if (isset($drawLimit) && is_numeric($drawLimit)) {
+        $sql .= " LIMIT ".$drawLimit;
+    }
+    return $sql;
 }
 
 function getDigitSQL($ident, $draw, $isSpecial) {

@@ -8,6 +8,7 @@
 // ========== ======= ====================================================
 // 2017-02-21 v1.01   First cut of code
 // 2017-02-21 v1.02   Include set_include_path directive
+// 2017-07-11 v1.03   Include LIMIT to draws extracted
 //
 
     set_include_path("<LIB GOES HERE>");
@@ -19,7 +20,7 @@
     $filename = "lotteryresults.json";
 
     $debug  = TRUE;
-    $output = buildJSON("localhost", "NONE");
+    $output = buildJSON("localhost", "NONE", 10);
     debugMessage("Writing JSON to file (".jsonFilename($wrksp, $filename).")...");
     if ($file = fopen(jsonFilename($wrksp, $filename), "w")) {
         fputs($file, $output);

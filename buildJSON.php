@@ -27,13 +27,15 @@
 //                    Also include try / catch handling
 // 2017-05-23 v2.07   Save requestor information, in case we need to block
 // 2017-05-26 v2.08   Used renamed sqllottery.php in place of sql.php
+// 2017-07-11 v2.09   Introduce an ability to control the numbers of draws returned
+//                    Also return 'draw_limit' in JSON response
 //
 
     require("globals.php");
     require("common.php");
     require("sqllottery.php");
 
-    $version = "v2.08";
+    $version = "v2.09";
 
     function setSpecial($isSpecial) {
         return $isSpecial == TRUE ? 'specials' : 'numbers';
@@ -55,9 +57,9 @@
         return $array;
     }
 
-    function buildDrawsArray($server, $row) {
+    function buildDrawsArray($server, $row, $drawLimit) {
         debugMessage("Process draw history for (".$row["description"].")...");
-        if (!$lotteryHistory = $server->query(getDrawHistorySQL($row["ident"]))) {
+        if (!$lotteryHistory = $server->query(getDrawHistorySQL($row["ident"], $drawLimit))) {
             throw new Exception("Unable to retrieve draw information");
         }
         //
@@ -75,8 +77,13 @@
         return $historyArray;
     }
 
-    function buildJSONContents($server, $row) {
-        debugMessage("Process summary info for (".$row["description"].")...");
+    function buildJSONContents($server, $row, $drawLimit) {
+        $msg = "Process summary info for (".$row["description"].")";
+        if (isset($drawLimit) && is_numeric($drawLimit)) {
+            $msg .= ", draws limited to (".$drawLimit.")";
+        }
+        $msg .= "...";
+        debugMessage($msg);
         $drawInfo["id"]        = $row["ident"];
         $drawInfo["desc"]      = $row["description"];
         $drawInfo["nos"]       = $row["numbers"];
@@ -85,11 +92,11 @@
         $drawInfo["upper_spc"] = $row["upper_special"];
         $drawInfo["modified"]  = $row["last_modified"];
         $drawInfo["bonus"]     = $row["is_bonus"];
-        $drawInfo["draws"]     = buildDrawsArray($server, $row);
+        $drawInfo["draws"]     = buildDrawsArray($server, $row, $drawLimit);
         return $drawInfo;
     }
 
-    function buildJSON($remote_addr) {
+    function buildJSON($remote_addr, $drawLimit) {
         try {
             debugMessage("Commencing ".basename(__FILE__)." ".$GLOBALS['version']."...");
             $server = new mysqli($GLOBALS['hostname'], $GLOBALS['username'], $GLOBALS['password'], $GLOBALS['database']);
@@ -110,25 +117,33 @@
                 throw new Exception("Unable to retrieve lottery information");
             }
             //
+            // if we've been supplied a value for the number of draws to return, validate it!
+            //
+            if (!isset($drawLimit) || !is_numeric($drawLimit)) {
+                debugMessage("Draw Limit either not supplied, or not numeric, setting = 50...");
+                $drawLimit = 50;
+            }
+            //
             // iterate through 'draws'
             //
             debugMessage("Commencing to process games...");
             while ($lotteryRow = $lotteryDraws->fetch_array(MYSQLI_ASSOC)) {
-                $json[] = buildJSONContents($server, $lotteryRow, $server);
+                $json[] = buildJSONContents($server, $lotteryRow, $drawLimit);
                 debugMessage("Draw (".$lotteryRow["description"].") processed...");
             }
             $server->close();
             //
             // format as JSON and save out to a file
             //
-            $outputArray["version"]   = $GLOBALS['version'];
-            $outputArray["generated"] = getGeneratedDateTime();
-            $outputArray["lottery"]   = $json;
-            $outputArray["msg"]       = "SUCCESS";
-            $outputArray["status"]    = 0;
+            $outputArray["version"]    = $GLOBALS['version'];
+            $outputArray["generated"]  = getGeneratedDateTime();
+            $outputArray["draw_limit"] = $drawLimit;
+            $outputArray["lottery"]    = $json;
+            $outputArray["msg"]        = "SUCCESS";
+            $outputArray["status"]     = 0;
         } catch (Exception $e) {
-            $outputArray["msg"]       = "ERROR: ".$e->getMessage();
-            $outputArray["status"]    = 999;
+            $outputArray["msg"]        = "ERROR: ".$e->getMessage();
+            $outputArray["status"]     = 999;
         }
         return json_encode($outputArray, JSON_NUMERIC_CHECK);
     }

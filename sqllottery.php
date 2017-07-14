@@ -14,6 +14,7 @@
 // 2017-05-23 v0.06   Add insert SQL for remote logging table
 // 2017-05-26 v0.07   Renamed to sqllottery.php to prevent clash
 // 2017-07-11 v0.08   Added $limit as option in getDrawHistorySQL
+// 2017-07-13 v0.09   Removed remote addr logging table access
 //
 
 function getLotteryDrawSQL() {
@@ -39,9 +40,5 @@ function getDrawHistorySQL($ident, $drawLimit) {
 
 function getDigitSQL($ident, $draw, $isSpecial) {
     return "SELECT number FROM number_usage WHERE ident = ".$ident." AND draw = ".$draw." AND is_special IS ".($isSpecial == TRUE ? 'TRUE' : 'FALSE');
-}
-
-function insertRemoteRequest($remote) {
-    return "INSERT INTO request_history (remote) VALUES ('".$remote."')";
 }
 ?>

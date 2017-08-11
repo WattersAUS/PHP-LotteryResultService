@@ -7,6 +7,7 @@
 // Date       Version Note
 // ========== ======= ====================================================
 // 2017-07-14 v1.01   First cut of code
+// 2017-08-11 v1.02   Added ERRORCODE for Query Service
 //
 
 const DATABASEERROR          = -9999;
@@ -15,6 +16,7 @@ const ACCESSTOKENMISSING     = -9997;
 const INCORRECTTOKENSUPPLIED = -9996;
 const ACCESSDENIED           = -9995;
 const ILLEGALDRAWCOUNT       = -9800;
+const ILLEGALAUTHORID        = -9700;
 const UNKNOWNERROR           = -9000;
 
 function serviceErrorMessage($error) {
@@ -37,6 +39,9 @@ function serviceErrorMessage($error) {
             break;
         case ILLEGALDRAWCOUNT:
             $message = "Draw count must be between 1 and 1000!";
+            break;
+        case ILLEGALAUTHORID:
+            $message = "Author ID must be supplied and a numeric!";
             break;
         default:
             break;

@@ -1,8 +1,8 @@
 <?php
 //
-// Program: verifyAccessToken.php (2017-07-14) G.J. Watson
+// Program: verifyLotteryAccessToken.php (2017-07-14) G.J. Watson
 //
-// Purpose: Return JSON via Web Service
+// Purpose: Validate an access token when it's passed on the cli
 //
 // Date       Version Note
 // ========== ======= ====================================================
@@ -11,7 +11,7 @@
 
     set_include_path("<LIB GOES HERE>");
     require_once("constants.php");
-    require_once("globals.php");
+    require_once("dblottery.php");
     require_once("common.php");
     require_once("checkAccess.php");
 

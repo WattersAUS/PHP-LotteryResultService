@@ -15,7 +15,7 @@
 //
 
     set_include_path("<LIB GOES HERE>");
-    require_once("globals.php");
+    require_once("dblottery.php");
     require_once("common.php");
     require_once("buildLotteryJSON.php");
 

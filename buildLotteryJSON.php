@@ -32,13 +32,14 @@
 // 2017-07-14 v2.10   Remove requestor save (handled elsewhere now)
 //                    Also removed DB connection out to calling script
 // 2017-08-11 v2.11   Rename file and function name
+// 2017-08-11 v2.12   Rename globals.php to dblottery.php
 //
 
-    require_once("globals.php");
+    require_once("dblottery.php");
     require_once("common.php");
     require_once("sqllottery.php");
 
-    $version = "v2.11";
+    $version = "v2.12";
 
     function setSpecial($isSpecial) {
         return $isSpecial == TRUE ? 'specials' : 'numbers';

@@ -20,7 +20,7 @@
     require_once("constants.php");
     require_once("common.php");
     require_once("checkAccess.php");
-    require_once("buildJSON.php");
+    require_once("buildLotteryJSON.php");
     require_once("logRequest.php");
 
     function processServiceRequest($token, $draws) {
@@ -40,7 +40,7 @@
                 if (isset($draws)) {
                     $drawLimit = $draws;
                 }
-                $json = buildJSON($server, $drawLimit);
+                $json = buildLotteryJSON($server, $drawLimit);
                 logRequest($server, $_SERVER['REMOTE_ADDR'], $id);
             }
             $server->close();

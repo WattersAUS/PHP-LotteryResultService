@@ -1,6 +1,6 @@
 <?php
 //
-// Module: buildJSON.php (2016-12-22) G.J. Watson
+// Module: buildLotteryJSON.php (2016-12-22) G.J. Watson
 //
 // Purpose: Return JSON string containing Lottery results
 //
@@ -31,13 +31,14 @@
 //                    Also return 'draw_limit' in JSON response
 // 2017-07-14 v2.10   Remove requestor save (handled elsewhere now)
 //                    Also removed DB connection out to calling script
+// 2017-08-11 v2.11   Rename file and function name
 //
 
     require_once("globals.php");
     require_once("common.php");
     require_once("sqllottery.php");
 
-    $version = "v2.10";
+    $version = "v2.11";
 
     function setSpecial($isSpecial) {
         return $isSpecial == TRUE ? 'specials' : 'numbers';
@@ -98,7 +99,7 @@
         return $drawInfo;
     }
 
-    function buildJSON($db, $drawLimit) {
+    function buildLotteryJSON($db, $drawLimit) {
         try {
             //
             // get the list of lotteries to process

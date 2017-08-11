@@ -1,6 +1,6 @@
 <?php
 //
-// Program: staticJSONGenerator.php (2017-02-21) G.J. Watson
+// Program: lotteryJSONGenerator.php (2017-02-21) G.J. Watson
 //
 // Purpose: build static JSON file for Lottery results
 //
@@ -11,12 +11,13 @@
 // 2017-07-11 v1.03   Include LIMIT to draws extracted
 // 2017-07-14 v1.04   Access and token handling now done elsewhere not buildJSON
 //                    Moved DB connection outside to calling script
+// 2017-08-11 v1.05   Code rename
 //
 
     set_include_path("<LIB GOES HERE>");
     require_once("globals.php");
     require_once("common.php");
-    require_once("buildJSON.php");
+    require_once("buildLotteryJSON.php");
 
     $version  = "v1.04";
     $wrksp    = "<WRKSPACE DIR GOES HERE>";
@@ -34,7 +35,7 @@
         //
         // build the JSON file
         //
-        $output = buildJSON($server, 10);
+        $output = buildLotteryJSON($server, 10);
         debugMessage("Writing JSON to file (".jsonFilename($wrksp, $filename).")...");
         if ($file = fopen(jsonFilename($wrksp, $filename), "w")) {
             fputs($file, $output);

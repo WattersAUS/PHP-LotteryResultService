@@ -8,6 +8,7 @@
 // ========== ======= ====================================================
 // 2017-07-14 v1.01   First cut of code
 // 2017-08-11 v1.02   Added ERRORCODE for Query Service
+// 2017-09-13 v1.03   Added ERRORCODE for Quote Service
 //
 
 // generic errors
@@ -23,6 +24,9 @@ const UNKNOWNERROR           = -9000;
 // service call errors
 const ILLEGALDRAWCOUNT       = -9800;
 const ILLEGALAUTHORID        = -9700;
+
+// not found id errors
+const ACTIVEAUTHORNOTFOUND   = -9600;
 
 function serviceErrorMessage($error) {
     $message = "An unknown error has occured!";
@@ -53,6 +57,9 @@ function serviceErrorMessage($error) {
             break;
         case ILLEGALAUTHORID:
             $message = "Author ID must be supplied and a numeric!";
+            break;
+        case ACTIVEAUTHORNOTFOUND:
+            $message = "Author ID either does not exist, or has no active quotes!";
             break;
         default:
             $message = "There has been an unknown error in the service!";

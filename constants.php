@@ -7,8 +7,9 @@
 // Date       Version Note
 // ========== ======= ====================================================
 // 2017-07-14 v1.01   First cut of code
-// 2017-08-11 v1.02   Added ERRORCODE for Query Service
-// 2017-09-13 v1.03   Added ERRORCODE for Quote Service
+// 2017-08-11 v1.02   Added an ERRORCODE for Query Service
+// 2017-09-13 v1.03   Added an ERRORCODE for Quote Service
+// 2017-11-14 v1.04   Modified message for too many requets
 //
 
 // generic errors
@@ -47,7 +48,7 @@ function serviceErrorMessage($error) {
             $message = "Access to this service has been denied!";
             break;
         case TOOMANYREQUESTS:
-            $message = "This token has been blocked for making over 100 requests within an hour! Access to the service will be suspended for 24 hours!";
+            $message = "This token has been blocked for making excessive requests! Service access is suspended until requests have fallen within the agreed usage plan!";
             break;
         case TOKENEXPIRED:
             $message = "The supplied token has expired, please request another one!";

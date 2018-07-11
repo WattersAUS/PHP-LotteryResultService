@@ -1,15 +1,16 @@
 <?php
 //
-//  Module: getLotteriesWithDraws.php - G.J. Watson
+//  Module: GetLotteriesWithDraws.php - G.J. Watson
 //    Desc: Get all lotteries and associated draws and build array obj
-// Version: 1.01
+// Version: 1.02
 //
 
-function getNumbers($db, $draw, $isSpecial) {
+function getNumbers($db, $ident, $draw, $isSpecial) {
     // get the numbers
     $sql  = "SELECT number";
     $sql .= " FROM number_usage";
-    $sql .= " WHERE draw = ".$draw;
+    $sql .= " WHERE ident = ".$ident;
+    $sql .= " AND draw = ".$draw;
     $sql .= " AND is_special = ".($isSpecial == TRUE ? "TRUE" : "FALSE");
     $sql .= " ORDER BY number ASC";
     $numbers = $db->select($sql);
@@ -20,12 +21,12 @@ function getNumbers($db, $draw, $isSpecial) {
     return $arr;
 }
 
-function getNumbersForDraw($db, $draw) {
-    return getNumbers($db, $draw, FALSE);
+function getNumbersForDraw($db, $ident, $draw) {
+    return getNumbers($db, $ident, $draw, FALSE);
 }
 
-function getSpecialsForDraw($db, $draw) {
-    return getNumbers($db, $draw, TRUE);
+function getSpecialsForDraw($db, $ident, $draw) {
+    return getNumbers($db, $ident, $draw, TRUE);
 }
 
 function getLotteriesWithDraws($db, $limit = 50) {
@@ -53,17 +54,17 @@ function getLotteriesWithDraws($db, $limit = 50) {
         // get the draws
         $sql  = "SELECT draw, draw_date, last_modified";
         $sql .= " FROM draw_history";
-        $sql .= " WHERE ident = ".$lRow["ident"];
+        $sql .= " WHERE ident = ".$lottery->getLotteryID();
         $sql .= " ORDER BY draw_date DESC";
         $sql .= " LIMIT ".$limit;
         $draws = $db->select($sql);
         while ($lDraw = $draws->fetch_array(MYSQLI_ASSOC)) {
             $draw = new Draw($lDraw["draw"], $lDraw["draw_date"], $lDraw["last_modified"]);
-            foreach (getNumbersForDraw($db, $draw->getDrawID()) as $number) {
+            foreach (getNumbersForDraw($db, $lottery->getLotteryID(), $draw->getDrawID()) as $number) {
                 $draw->addNumber($number);
             }
-            foreach (getSpecialsForDraw($db, $draw->getDrawID()) as $number) {
-                $draw->addSpecial($number);
+            foreach (getSpecialsForDraw($db, $lottery->getLotteryID(), $draw->getDrawID()) as $special) {
+                $draw->addSpecial($special);
             }
             $lottery->addDraw($draw);
         }

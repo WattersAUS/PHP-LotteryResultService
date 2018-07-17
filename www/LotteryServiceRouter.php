@@ -2,7 +2,7 @@
 //
 //  Module: LotteryServiceRouter.php - G.J. Watson
 //    Desc: Route to appropriate response
-// Version: 1.02
+// Version: 1.03
 //
 
     // first load up the common project code
@@ -21,11 +21,14 @@
     // functions to return json
     require_once("responses/GetLotteriesWithDraws.php");
 
+    // connection details for database
+    require_once("connect/Lottery.php");
+
     //
     // check it's a request we can deal with
     //
     function routeRequest($check, $db, $access, $generated, $arr) {
-        $version = "v1.02";
+        $version = "v1.03";
         if (array_key_exists("draws", $arr)) {
             $check->numericVariable("draws", ILLEGALDRAWCOUNT["message"], ILLEGALDRAWCOUNT["code"], $arr);
             $jsonObj = new JSONBuilder($version, "GetLotteriesWithLimitedDraws", $generated, "lottery", getLotteriesWithDraws($db, $arr["draws"]));
@@ -41,10 +44,6 @@
     // 3. log the access
     //
 
-    $database = "";
-    $username = "";
-    $password = "";
-    $hostname = "";
     $db       = new Database($database, $username, $password, $hostname);
     $htmlCode = 200;
     $htmlMess = "200 OK";

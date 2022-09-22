@@ -1,7 +1,7 @@
 <?php
 //
-//  Module: Quotes.php - G.J. Watson
-//    Desc: Quotes Database Connection Details
+//  Module: Lottery.php - G.J. Watson
+//    Desc: Lottery Database Connection Details
 // Version: 1.00
 //
 

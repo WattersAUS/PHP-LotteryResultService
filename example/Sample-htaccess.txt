@@ -1,0 +1,20 @@
+Sample .htaccess below
+
+showing mapping of url that router uses to direct requests (see LotteryServiceRouter.php)
+
+--
+
+# Turn rewrite engine on
+Options +FollowSymlinks
+RewriteEngine on
+
+SetEnvIf Authorization .+ HTTP_AUTHORIZATION=$0
+
+RewriteRule ^info$ index.php
+
+# lottery services
+RewriteRule ^lottery/limitdraws/(\d+)/$        services/LotteryServiceRouter.php?request=limitdraws&draws=$1 [NC,L]
+RewriteRule ^lottery/alldraws/$                services/LotteryServiceRouter.php?request=alldraws            [NC,L]
+RewriteRule ^lottery/lotteries/$               services/LotteryServiceRouter.php?request=lotteries           [NC,L]
+RewriteRule ^lottery/lotterybyid/(\d+)/$       services/LotteryServiceRouter.php?request=lotterybyid&id=$1   [NC,L]
+RewriteRule ^lottery/latestdraws/$             services/LotteryServiceRouter.php?request=latestdraws         [NC,L]

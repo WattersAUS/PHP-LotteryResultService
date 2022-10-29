@@ -2,7 +2,7 @@
 //
 //  Module: LotteryServiceRouter.php - G.J. Watson
 //    Desc: Route to appropriate response
-// Version: 1.20
+// Version: 1.21
 //
 
     // first load up the common project code
@@ -29,14 +29,8 @@
     require_once("responses/GetLotteries.php");
     require_once("responses/GetLotteriesWithDraws.php");
     require_once("responses/GetLotteriesWithDrawsFromID.php");
+    require_once("responses/GetLatestLotteryDraws.php");
     
-    // search functions
-    //require_once("responses/SearchAllAuthors.php");
-    //require_once("responses/SearchAllAuthorsWithQuotes.php");
-
-    // get 'new' quotes
-    //require_once("responses/GetAuthorsWithQuotesFromDate.php");
-
     // connection details for database
     require_once("connect/Lottery.php");
 
@@ -64,6 +58,9 @@
                     throw new ServiceException(ILLEGALLOTTERYID["message"], ILLEGALLOTTERYID["code"]);
                 }
                 $jsonObj = new JSONBuilder($version, "GetLotteryByID", $generated, "lottery", getLotteriesWithDrawsFromID($db, $arr["id"]));
+                break;
+            case "latestdraws":
+                $jsonObj = new JsonBuilder($version, "GetLatestDraws", $generated, "lottery", getLatestLotteryDraws($db));
                 break;
             default:
                 throw new ServiceException(HTTPROUTINGERROR["message"], HTTPROUTINGERROR["code"]);

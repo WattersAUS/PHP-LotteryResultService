@@ -2,7 +2,7 @@
 //
 //  Module: Lottery.php - G.J. Watson
 //    Desc: Lottery Object
-// Version: 1.02
+// Version: 1.03
 //
 
 require_once("Draw.php");
@@ -26,20 +26,20 @@ final class Lottery {
 
     // New lottery (we have some data)
     public function __construct($arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $arg7, $arg8, $arg9, $arg10, $arg11, $arg12, $arg13) {
-        $this->ident        = $arg1;
-        $this->description  = $arg2;
-        $this->draw         = $arg3;
-        $this->numbers      = $arg4;
-        $this->upperNumber  = $arg5;
-        $this->numbersTag   = $arg6;
-        $this->specials     = $arg7;
+        $this->ident = $arg1;
+        $this->description = $arg2;
+        $this->draw = $arg3;
+        $this->numbers = $arg4;
+        $this->upperNumber = $arg5;
+        $this->numbersTag = $arg6;
+        $this->specials = $arg7;
         $this->upperSpecial = $arg8;
-        $this->specialsTag  = $arg9;
-        $this->isBonus      = $arg10;
-        $this->baseUrl      = $arg11;
+        $this->specialsTag = $arg9;
+        $this->isBonus = $arg10;
+        $this->baseUrl = $arg11;
         $this->lastModified = $arg12;
-        $this->endDate      = $arg13;
-        $this->draws        = [];
+        $this->endDate = $arg13;
+        $this->draws = [];
     }
 
     public function addDraw($draw) {

@@ -2,7 +2,7 @@
 //
 //  Module: Draw.php - G.J. Watson
 //    Desc: Draw Object
-// Version: 1.01
+// Version: 1.02
 //
 
 final class Draw {
@@ -15,11 +15,11 @@ final class Draw {
 
     // New lottery (we have some data)
     public function __construct($arg1, $arg2, $arg3) {
-        $this->draw         = $arg1;
-        $this->drawDate     = $arg2;
+        $this->draw = $arg1;
+        $this->drawDate = $arg2;
         $this->lastModified = $arg3;
-        $this->numbers      = [];
-        $this->specials     = [];
+        $this->numbers = [];
+        $this->specials = [];
     }
 
     public function addNumber($number) {
@@ -61,8 +61,8 @@ final class Draw {
     public function getDrawAsArray() {
         $obj["draw"] = $this->draw;
         $obj["date"] = $this->drawDate;
-        $obj["numbers"]  = $this->getNumbersAsArray();
-        $obj["specials"]  = $this->getSpecialsAsArray();
+        $obj["numbers"] = $this->getNumbersAsArray();
+        $obj["specials"] = $this->getSpecialsAsArray();
         return $obj;
     }
 }

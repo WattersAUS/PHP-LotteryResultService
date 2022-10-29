@@ -2,7 +2,7 @@
 //
 //  Module: LotterySQL.php - G.J. Watson
 //    Desc: Common SQL Statements used for Lottery DB
-// Version: 1.00
+// Version: 1.10
 //
 
 // Lottery
@@ -25,6 +25,18 @@ function getAllActiveLotterySQL() {
     $sql  = getBasicLotterySQL();
     $sql .= " WHERE l.end_date IS NULL";
     $sql .= " ORDER BY l.description ASC";
+    return $sql;
+}
+
+function getAllLotterySQL() {
+    $sql  = getBasicLotterySQL();
+    $sql .= " ORDER BY l.description ASC";
+    return $sql;
+}
+
+function getLotteryFromIDSQL($ident) {
+    $sql  = getBasicLotterySQL();
+    $sql .= " WHERE l.ident = ".$ident;
     return $sql;
 }
 

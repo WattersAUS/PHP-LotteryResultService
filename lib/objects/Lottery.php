@@ -2,7 +2,7 @@
 //
 //  Module: Lottery.php - G.J. Watson
 //    Desc: Lottery Object
-// Version: 1.00
+// Version: 1.02
 //
 
 require_once("Draw.php");
@@ -99,6 +99,7 @@ final class Lottery {
     }
 
     private function getLotteryDraws() {
+        $arr = [];
         foreach ($this->draws as $draw) {
             $arr[] = $draw->getDrawAsArray();
         }
@@ -106,15 +107,18 @@ final class Lottery {
     }
 
     public function getLotteryAsArray() {
-        $obj["id"]        = $this->getLotteryID();
-        $obj["desc"]      = $this->getDescription();
-        $obj["nos"]       = $this->getNumbers();
-        $obj["upper_nos"] = $this->getUpperNumber();
-        $obj["spc"]       = $this->getSpecials();
-        $obj["upper_spc"] = $this->getUpperSpecial();
-        $obj["modified"]  = $this->getLastModified();
-        $obj["bonus"]     = $this->getIsBonus();
-        $obj["draws"]     = $this->getLotteryDraws();
+        $obj["id"] = $this->getLotteryID();
+        $obj["description"] = $this->getDescription();
+        $obj["last_draw"] = $this->getDraw();
+        $obj["numbers"] = $this->getNumbers();
+        $obj["number_upper_limit"] = $this->getUpperNumber();
+        $obj["specials_used"] = $this->getSpecials();
+        $obj["special_upper_limit"] = $this->getUpperSpecial();
+        $obj["last_modified"] = $this->getLastModified();
+        $obj["bonus_numbers"] = $this->getIsBonus();
+        if (count($this->draws) > 0) {
+            $obj["draws"] = $this->getLotteryDraws();
+        }
         return $obj;
     }
 }

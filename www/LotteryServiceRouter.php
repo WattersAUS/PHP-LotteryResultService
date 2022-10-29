@@ -2,7 +2,7 @@
 //
 //  Module: LotteryServiceRouter.php - G.J. Watson
 //    Desc: Route to appropriate response
-// Version: 1.10
+// Version: 1.20
 //
 
     // first load up the common project code
@@ -26,8 +26,9 @@
     //require_once("support/UpdateRandomQuoteTimesUsed.php");
 
     // functions to return json
+    require_once("responses/GetLotteries.php");
     require_once("responses/GetLotteriesWithDraws.php");
-    require_once("responses/GetLotteriesOnDate.php");
+    require_once("responses/GetLotteriesWithDrawsFromID.php");
     
     // search functions
     //require_once("responses/SearchAllAuthors.php");
@@ -44,7 +45,7 @@
     //
 
     function routeRequest($check, $db, $access, $generated, $arr) {
-        $version = "v1.10";
+        $version = "v1.20";
         switch ($arr["request"]) {
             case "alldraws":
                 $jsonObj = new JSONBuilder($version, "GetLotteriesWithDraws", $generated, "lottery", getLotteriesWithDraws($db));
@@ -54,6 +55,15 @@
                     throw new ServiceException(ILLEGALDRAWCOUNT["message"], ILLEGALDRAWCOUNT["code"]);
                 }
                 $jsonObj = new JSONBuilder($version, "GetLotteriesWithLimitedDraws", $generated, "lottery", getLotteriesWithDraws($db, $arr["draws"]));
+                break;
+            case "lotteries":
+                $jsonObj = new JSONBuilder($version, "GetLotteries", $generated, "lottery", getLotteries($db));
+                break;
+            case "lotterybyid":
+                if (! $check->checkVariableExistsInArray("id", $arr) || ! $check->isValidNumeric($arr["id"])) {
+                    throw new ServiceException(ILLEGALLOTTERYID["message"], ILLEGALLOTTERYID["code"]);
+                }
+                $jsonObj = new JSONBuilder($version, "GetLotteryByID", $generated, "lottery", getLotteriesWithDrawsFromID($db, $arr["id"]));
                 break;
             default:
                 throw new ServiceException(HTTPROUTINGERROR["message"], HTTPROUTINGERROR["code"]);

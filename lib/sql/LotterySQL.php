@@ -2,7 +2,7 @@
 //
 //  Module: LotterySQL.php - G.J. Watson
 //    Desc: Common SQL Statements used for Lottery DB
-// Version: 1.11
+// Version: 1.12
 //
 
 // Lottery
@@ -85,9 +85,7 @@ function getNumberSQL($ident, $draw, $isSpecial) {
     return $sql;
 }
 
-// Return latest draws
-
-function getLatestDrawSQL() {
+function getLatestDrawLotterySQL() {
     $sql = "SELECT ";
     $sql .= getBasicLotteryFields();
     $sql .= ",";
@@ -98,6 +96,18 @@ function getLatestDrawSQL() {
     $sql .= " LEFT JOIN draw_history d ON l.ident = d.ident";
     $sql .= " INNER JOIN number_usage n on d.ident = n.ident AND d.draw = n.draw";
     $sql .= " WHERE l.draw = d.draw";
+    return $sql;
+}
+
+function getLatestDrawSQL($ident) {
+    $sql = getLatestDrawLotterySQL();
+    $sql .= " AND l.ident = ".$ident;
+    $sql .= " ORDER BY l.ident ASC, is_special ASC, number ASC";
+    return $sql;
+}
+
+function getLatestDrawsSQL() {
+    $sql = getLatestDrawLotterySQL();
     $sql .= " ORDER BY l.ident ASC, is_special ASC, number ASC";
     return $sql;
 }

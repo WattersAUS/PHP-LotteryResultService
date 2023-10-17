@@ -1,16 +1,16 @@
 <?php
 //
-//  Module: GetLatestLotteryDraws.php - G.J. Watson
-//    Desc: Get lotteries and associated latest draw and build array obj to pass back
-// Version: 1.01
+//  Module: GetLatestLotteryDrawFromID.php - G.J. Watson
+//    Desc: Get lottery using an id and associated latest draw so we can check results
+// Version: 1.00
 //
 
-function GetLatestLotteryDraws($db) {
+function GetLatestLotteryDrawFromID($db, $ident) {
     $arr = [];
     $lastid = -1;
     $lottery = "";
     $draw = "";
-    $latest = $db->select(getLatestDrawsSQL());
+    $latest = $db->select(getLatestDrawSQL($ident));
     while ($lRow = $latest->fetch_array(MYSQLI_ASSOC)) {
         if ($lastid <> $lRow["l_ident"]) {
             if ($lastid <> -1) {

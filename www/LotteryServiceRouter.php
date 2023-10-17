@@ -2,7 +2,7 @@
 //
 //  Module: LotteryServiceRouter.php - G.J. Watson
 //    Desc: Route to appropriate response
-// Version: 1.21
+// Version: 1.22
 //
 
     // first load up the common project code
@@ -30,6 +30,7 @@
     require_once("responses/GetLotteriesWithDraws.php");
     require_once("responses/GetLotteriesWithDrawsFromID.php");
     require_once("responses/GetLatestLotteryDraws.php");
+    require_once("responses/GetLatestLotteryDrawFromID.php");
     
     // connection details for database
     require_once("connect/Lottery.php");
@@ -39,7 +40,7 @@
     //
 
     function routeRequest($check, $db, $access, $generated, $arr) {
-        $version = "v1.20";
+        $version = "v1.22";
         switch ($arr["request"]) {
             case "alldraws":
                 $jsonObj = new JSONBuilder($version, "GetLotteriesWithDraws", $generated, "lottery", getLotteriesWithDraws($db));
@@ -60,7 +61,10 @@
                 $jsonObj = new JSONBuilder($version, "GetLotteryByID", $generated, "lottery", getLotteriesWithDrawsFromID($db, $arr["id"]));
                 break;
             case "latestdraws":
-                $jsonObj = new JsonBuilder($version, "GetLatestDraws", $generated, "lottery", getLatestLotteryDraws($db));
+                $jsonObj = new JSONBuilder($version, "GetLatestDraws", $generated, "lottery", getLatestLotteryDraws($db));
+                break;
+            case "latestdrawbyid":
+                $jsonObj = new JSONBuilder($version, "GetLatestDrawByID", $generated, "lottery", getLatestLotteryDrawFromID($db, $arr["id"]));
                 break;
             default:
                 throw new ServiceException(HTTPROUTINGERROR["message"], HTTPROUTINGERROR["code"]);

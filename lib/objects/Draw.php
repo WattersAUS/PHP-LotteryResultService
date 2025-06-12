@@ -2,7 +2,7 @@
 //
 //  Module: Draw.php - G.J. Watson
 //    Desc: Draw Object
-// Version: 1.02
+// Version: 1.03
 //
 
 final class Draw {
@@ -62,7 +62,9 @@ final class Draw {
         $obj["draw"] = $this->draw;
         $obj["date"] = $this->drawDate;
         $obj["numbers"] = $this->getNumbersAsArray();
-        $obj["specials"] = $this->getSpecialsAsArray();
+        if (count($this->specials) > 0) {
+            $obj["specials"] = $this->getSpecialsAsArray();
+        }
         return $obj;
     }
 }

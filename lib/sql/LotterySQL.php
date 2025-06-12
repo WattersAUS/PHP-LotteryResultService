@@ -2,7 +2,7 @@
 //
 //  Module: LotterySQL.php - G.J. Watson
 //    Desc: Common SQL Statements used for Lottery DB
-// Version: 1.12
+// Version: 1.15
 //
 
 // Lottery
@@ -111,4 +111,67 @@ function getLatestDrawsSQL() {
     $sql .= " ORDER BY l.ident ASC, is_special ASC, number ASC";
     return $sql;
 }
+
+// check users
+
+function getBasicCheckUserFields() {
+    $sql = " cu.ident AS cu_ident, cu.name as cu_name, cu.email AS cu_email, cu.is_active AS cu_is_active, cu.last_modified AS cu_last_modified ";
+    return $sql;
+}
+
+function getBasicCheckUserSQL() {
+    $sql = "SELECT ";
+    $sql .= getBasicCheckUserFields();
+    $sql .= " FROM check_user cu";
+    return $sql;
+}
+
+// check draws
+
+function getBasicCheckDrawsFields() {
+    $sql = " cd.ident AS cd_ident, cd.user_ident as cd_user_ident, cd.lottery_ident AS cd_lottery_ident, cd.is_active AS cd_is_active, cd.last_modified AS cd_last_modified ";
+    return $sql;
+}
+
+function getBasicCheckDrawsSQL() {
+    $sql = "SELECT ";
+    $sql .= getBasicCheckDrawsFields();
+    $sql .= " FROM check_draws cd";
+    return $sql;
+}
+
+// check numbers
+
+function getBasicCheckNumbersFields() {
+    $sql = " cn.check_ident AS cn_check_ident, cn.number as cn_number, cn.is_special AS cn_is_special ";
+    return $sql;
+}
+
+function getBasicCheckNumbersSQL() {
+    $sql = "SELECT ";
+    $sql .= getBasicCheckNumbersFields();
+    $sql .= " FROM check_numbers cn";
+    return $sql;
+}
+
+// get latest lottery / user / check number info
+
+function getLatestUserLotteryCheckDrawsFields() {
+    $sql = "SELECT ";
+    $sql .= getBasicLotteryFields();
+    $sql .= ",";
+    $sql .= getBasicCheckUserFields();
+    $sql .= ",";
+    $sql .= getBasicCheckDrawsFields();
+    $sql .= ",";
+    $sql .= getBasicCheckNumbersFields();
+    $sql .= " FROM check_user cu";
+    $sql .= " LEFT JOIN check_draws cd ON cu.ident = cd.user_ident";
+    $sql .= " LEFT JOIN lottery_draws l ON cd.lottery_ident = l.ident";
+    $sql .= " LEFT JOIN check_numbers cn ON cd.ident = cn.check_ident";
+    $sql .= " WHERE cu.is_active = TRUE AND cd.is_active = TRUE";
+    $sql .= " ORDER BY cu.ident, l.ident, cd.ident, cn.is_special, cn.number";
+    return $sql;
+}
+
 ?>
